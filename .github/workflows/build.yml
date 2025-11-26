@@ -1,0 +1,95 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: tenki-standard-small-2c-4g
+    steps:
+      - uses: actions/checkout@v4
+
+      # Add cache test step
+      - name: Cache test data
+        id: cache-test
+        uses: actions/cache@v4
+        with:
+          path: test-cache-dir
+          key: ${{ runner.os }}-test-cache-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-test-cache-
+
+      - name: Create test cache data
+        if: steps.cache-test.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p test-cache-dir
+          echo "Test data created at $(date)" > test-cache-dir/data.txt
+          echo "Run ID: ${{ github.run_id }}" >> test-cache-dir/data.txt
+
+      - name: Display cache data
+        run: |
+          echo "Cache hit: ${{ steps.cache-test.outputs.cache-hit }}"
+          if [ -f test-cache-dir/data.txt ]; then
+            echo "Cache contents:"
+            cat test-cache-dir/data.txt
+          else
+            echo "No cache data found"
+          fi
+
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      - name: List project files
+        run: |
+          echo "Project structure:"
+          ls -la
+          echo "Repository information:"
+          git log --oneline -n 5
+
+      - name: Check for common files
+        run: |
+          echo "Checking for common project files..."
+          if [ -f "package.json" ]; then
+            echo "✓ Found package.json - Node.js project detected"
+          fi
+          if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+            echo "✓ Found Python project files"
+          fi
+          if [ -f "go.mod" ]; then
+            echo "✓ Found go.mod - Go project detected"
+          fi
+          if [ -f "Cargo.toml" ]; then
+            echo "✓ Found Cargo.toml - Rust project detected"
+          fi
+          if [ -f "Dockerfile" ]; then
+            echo "✓ Found Dockerfile - Docker project detected"
+          fi
+
+      - name: Build and test complete
+        run: |
+          echo "🎉 Build and test workflow completed successfully!"
+          echo "Add specific build and test commands for your project type."
+
+  new-simple-job:
+    runs-on: tenki-standard-small-2c-4g
+    steps:
+      - name: Run a simple command
+        run: echo "This is the new simple job. It runs in parallel with the 'build' job."
+
+  # always-fail-job:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Print starting message
+  #       run: echo "This job will intentionally fail."
+
+  #     - name: Force failure
+  #       run: |
+  #         echo "Simulating a failure..."
+  #         exit 1
