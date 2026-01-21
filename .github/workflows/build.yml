@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: tenki-standard-small-2c-4g
+    runs-on: tenki-local-macos-26-4c-16g
     steps:
       - uses: actions/checkout@v4
 
@@ -77,7 +77,7 @@ jobs:
           echo "Add specific build and test commands for your project type."
 
   new-simple-job:
-    runs-on: tenki-standard-small-2c-4g
+    runs-on: tenki-local-macos-26-4c-16g
     steps:
       - name: Run a simple command
         run: echo "This is the new simple job. It runs in parallel with the 'build' job."
